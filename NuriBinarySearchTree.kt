@@ -21,7 +21,7 @@ class NuriBinarySearchTree<T : Int> {
         var newNode:BTreeNode<T>? = null
 
         while (currentNode != null) {
-            // 데이터(키)의 중복을 허용하지 않음.
+            // Do not allow duplicate data (key)
             if(data == currentNode.getData()) return
 
             parentNode = currentNode
@@ -32,17 +32,17 @@ class NuriBinarySearchTree<T : Int> {
                 currentNode.getRightNode()
         }
 
-        // 추가할 새로운 노드 생성
+        // Create new nodes to add
         newNode = BTreeNode(data)
 
-        // parentNode의 자식 노드로 newNode 추가
+        // Add newNode as a child node of parentNode
         if(parentNode != null){
             if(data < parentNode.getData())
                 makeLeftSubTree(parentNode, newNode)
             else
                 makeRightSubTree(parentNode, newNode)
         }
-        // 새로운 노드가 루트노드일 경우
+        // When the new node is the root node
         else
             rootNode = newNode
     }
@@ -66,15 +66,15 @@ class NuriBinarySearchTree<T : Int> {
     }
 
     fun remove(target: T): Boolean {
-        var pVRoot = BTreeNode(target) // 가상노드이므로 임으로 data값을 target으로 설정
+        var pVRoot = BTreeNode(target) // Since it is a virtual node, the data value can be arbitrarily set as a target.
         var pNode = pVRoot
         var cNode = rootNode
         var dNode: BTreeNode<T>
 
-        // 루트 노드를 pVRoot가 가리키는 노드의 오른쪽 자식 노드가 되게 한다
+        // Make the root node the right child node of the node pointed to by pVRoot
         pVRoot.setRightNode(rootNode)
 
-        // 삭제 대상 노드 탐색
+        // Navigate to the node to be deleted
         while (cNode != null && cNode.getData() != target) {
             pNode = cNode
 
@@ -84,12 +84,12 @@ class NuriBinarySearchTree<T : Int> {
                 cNode.getRightNode()
         }
 
-        // 삭제 대상이 존재하지 않는다면
+        // If the object to be deleted does not exist
         if(cNode == null) return false
 
         dNode = cNode
 
-        // CASE 1 : 삭제 대상이 단말 노드인 경우
+        // CASE 1 : When the deletion target is a terminal node
         if(dNode.getLeftNode() == null && dNode.getRightNode() == null) {
             if(pNode.getLeftNode() == dNode)
                 removeLeftSubTree(pNode)
@@ -97,9 +97,9 @@ class NuriBinarySearchTree<T : Int> {
                 removeRightSubTree(pNode)
         }
 
-        // CASE 2 : 삭제 대상이 하나의 자식 노드를 갖는 경우
+        // CASE 2 : When the deletion target has one child node
         else if(dNode.getLeftNode() == null || dNode.getRightNode() == null){
-            // 삭제 대상의 자식 노드
+            // Child node to be deleted
             var dcNode = if(dNode.getLeftNode() != null)
                 dNode.getLeftNode()
             else
@@ -111,31 +111,31 @@ class NuriBinarySearchTree<T : Int> {
                 changeRightSubTree(pNode, dcNode!!)
         }
 
-        // CASE 3 : 두 개의 자식 노드를 모두 갖는 경우
+        // CASE 3 : If the deletion target has both child nodes
         else {
-            // 대체노드
+            // Alternative node
             var mNode = dNode.getRightNode()!!
-            // 대체노드의 부모노드
+            // Parent node of the alternative node
             var mpNode = dNode
 
-            // 삭제 대상의 대체노드 찾음
+            // Finding the alternative node => The process of finding the smallest value in the tree on the right
             while (mNode.getLeftNode() != null) {
                 mpNode = mNode
                 mNode = mNode.getLeftNode()!!
             }
 
-            // 대체 노드에 저장된 값을 삭제할 노드에 대입
+            // Assign the value stored in the alternate node to the node to be deleted
             val delData = dNode.getData()
             dNode.setData(mNode.getData())
 
-            // 대체 노드의 부모 노드와 자식 노드를 연결
+            // Connect the parent and child nodes of the alternate node
             if(mpNode.getLeftNode() == mNode)
-                changeLeftSubTree(mpNode, mNode.getRightNode()!!)
+                changeLeftSubTree(mpNode, mNode.getRightNode())
             else
-                changeRightSubTree(mpNode, mNode.getRightNode()!!)
+                changeRightSubTree(mpNode, mNode.getRightNode())
         }
 
-        // 삭제된 노드가 루트 노드인 경우에 대한 추가 처리
+        // Additional processing for when the deleted node is the root node
         if(pVRoot.getRightNode() != rootNode)
             rootNode = pVRoot.getRightNode()
 
@@ -143,14 +143,14 @@ class NuriBinarySearchTree<T : Int> {
     }
 
     private fun makeLeftSubTree(parentNode:BTreeNode<T>, newNode: BTreeNode<T>) {
-        // 메모리 해제
+        // Free memory
         if(parentNode.getLeftNode() != null)
             parentNode.setLeftNode(null)
         parentNode.setLeftNode(newNode)
     }
 
     private fun makeRightSubTree(parentNode:BTreeNode<T>, newNode: BTreeNode<T>) {
-        // 메모리 해제
+        // Free memory
         if(parentNode.getRightNode() != null)
             parentNode.setRightNode(null)
         parentNode.setRightNode(newNode)
@@ -174,18 +174,18 @@ class NuriBinarySearchTree<T : Int> {
         }
         return deletedNode
     }
-    // 메모리 소멸을 수반하지 않고 main의 왼쪽 자식 노드를 변경한다
-    private fun changeLeftSubTree(main:BTreeNode<T>, sub:BTreeNode<T>) {
+    // Change the left child node of main without causing memory destruction
+    private fun changeLeftSubTree(main:BTreeNode<T>, sub:BTreeNode<T>?) {
         main.setLeftNode(sub)
     }
-    // 메모리 소멸을 수반하지 않고 main의 오른쪽 자식 노드를 변경한다
-    private fun changeRightSubTree(main:BTreeNode<T>, sub:BTreeNode<T>) {
+    // Changes the right child node of main without causing memory destruction
+    private fun changeRightSubTree(main:BTreeNode<T>, sub:BTreeNode<T>?) {
         main.setRightNode(sub)
     }
 
     fun printOut() {
-        println("******** ROOT : ${rootNode?.getData()} *******")
-        println("******** LEFT : ${rootNode?.getLeftNode()} *******")
-        println("******** RIGHT : ${rootNode?.getRightNode()} *******")
+        println("** ROOT : ${rootNode?.getData()} **")
+        println("** LEFT : ${rootNode?.getLeftNode()} **")
+        println("** RIGHT : ${rootNode?.getRightNode()} **")
     }
 }
