@@ -45,7 +45,7 @@ class NuriBalanceBinarySearchTree<T : Int> {
         // When the new node is the root node
         else
             rootNode = newNode
-        
+
         reBalance()
     }
 
@@ -185,59 +185,62 @@ class NuriBalanceBinarySearchTree<T : Int> {
     private fun changeRightSubTree(main:BTreeNode<T>, sub:BTreeNode<T>?) {
         main.setRightNode(sub)
     }
-    
+
     /**
-     * 여기서부터는 균형트리를 위한 함수들
+     * Functions for reblancing
      * */
-    // TODO :: 변경된 root노드를 반환해줘야하나? 아니면 변경시켜줘야하나
     private fun reBalance() {
-        // 균형 인수
+        // balance factor
         val hDiff = getHeightDiff(rootNode)
-        
-        // 균형 인수가 +2이상이면 LL상태 또는 LR상태
-        if(hDiff > 1) { // 왼쪽 서브 트리 방향으로 높이가 2 이상 클 때
+
+        // balance factor >= +2 => LL or LR
+        if(hDiff > 1) {
             if(getHeightDiff(rootNode?.getLeftNode()) > 0)
-                rotateLL(rootNode!!)
+                rootNode = rotateLL(rootNode!!)
             else
-                rotateLR(rootNode!!)
+                rootNode = rotateLR(rootNode!!)
         }
-        
-        // 균형 인수가 -2이하이면 RR상태 또는 RL상태
-        if(hDiff < -1) { // 오른쪽 서브 트리 방향으로 2 이상 클 때
+
+        // balance factor <= -2 => RR or RL
+        if(hDiff < -1) {
             if(getHeightDiff(rootNode?.getRightNode()) < 0)
-                rotateRR(rootNode!!)
+                rootNode = rotateRR(rootNode!!)
             else
-                rotateRL(rootNode!!)
+                rootNode = rotateRL(rootNode!!)
         }
     }
-    
-    // 트리의 높이를 계산하여 반환
+
+    /**
+     * Returns the height of the tree
+     * */
     private fun getHeight(node: BTreeNode<T>?) : Int{
         if(node == null) return 0
-        
-        val leftHeight = getHeight(node.getLeftNode()) // 왼쪽 서브 트리 높이 
-        val rightHeight = getHeight(node.getRightNode()) // 오른쪽 서브 트리 높이
+
+        val leftHeight = getHeight(node.getLeftNode()) 
+        val rightHeight = getHeight(node.getRightNode()) 
 
         return if(leftHeight > rightHeight) leftHeight+1
         else rightHeight+1
     }
-    
-    // 두 서브 트리의 높이의 차(균형 인수)를 리턴
+
+    /**
+     * Returns the difference (balance factor) between the heights of two subtrees
+     **/
     private fun getHeightDiff(node: BTreeNode<T>?): Int {
         if(node == null) return 0
-        
-        val leftSubHeight = getHeight(node.getLeftNode()) // 왼쪽 서브 트리 높이
-        val rightSubHeight = getHeight(node.getRightNode()) // 오른쪽 서브 트리 높이
-        
+
+        val leftSubHeight = getHeight(node.getLeftNode())
+        val rightSubHeight = getHeight(node.getRightNode())
+
         return leftSubHeight - rightSubHeight
     }
-    
+
     private fun rotateLL(node: BTreeNode<T>) : BTreeNode<T> {
         val childNode = node.getLeftNode()!!
 
         changeLeftSubTree(node, childNode.getRightNode())
         changeRightSubTree(childNode, node)
-        
+
         return childNode
     }
     private fun rotateLR(node: BTreeNode<T>) : BTreeNode<T> {
@@ -256,7 +259,7 @@ class NuriBalanceBinarySearchTree<T : Int> {
     }
     private fun rotateRL(node: BTreeNode<T>): BTreeNode<T>  {
         val childNode = node.getRightNode()!!
-        
+
         changeRightSubTree(node, rotateLL(childNode))
         return rotateRR(node)
     }
